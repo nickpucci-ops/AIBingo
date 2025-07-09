@@ -1,14 +1,20 @@
-from tkinter import *
+from customtkinter import *
 
-root = Tk()
+root = CTk()
 root.title('AI Bingo')
 root.geometry('350x200')
 
+# menu = CTkOptionMenu(root)
+# item = CTkOptionMenu(menu)
+# item.add_command(label='New')
+# menu.add_cascade(label='File', menu=item)
+# root.config(menu=menu)
 
-lbl = Label(root, text = 'Ready to play?')
+
+lbl = CTkLabel(root, text = 'Ready to play?')
 lbl.grid()
 
-txt = Entry(root, width=10)
+txt = CTkEntry(root, width=10)
 txt.grid(column=1, row = 0)
 
 def clicked():
@@ -25,8 +31,8 @@ def clicked():
     res = "Lotto Ball " + lottoball + "\n Task: \n"
     lbl.configure(text = res + task)
 
-btn = Button(root, text = 'Click me', fg = 'orange', command = clicked)
-btn.grid(column = 2, row = 0)
+btn = CTkButton(master=root, text = 'Play', fg_color = 'orange', command = clicked)
+btn.place(relx=0.5, rely=0.5, anchor='center')
 
 
 root.mainloop()
