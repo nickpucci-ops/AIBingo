@@ -1,8 +1,6 @@
 from customtkinter import *
 from PIL import Image, ImageTk
 from tkfontawesome import icon_to_image
-import emoji
-import re
 
 # Initialize main window
 root = CTk()
@@ -27,37 +25,34 @@ reset_icon_image = icon_to_image("rotate-right", fill="#EA6E08", scale_to_width=
 # Track drawn numbers
 drawn_numbers = []
 
-# Tasks dictionary with emojis (expanded to 15 tasks)
+# Tasks dictionary with emoji image paths (15 tasks, placeholder paths)
 tasks = {
-    '1': {'task': 'Autocorrect spelling', 'emoji': ':writing_hand:'},
-    '2': {'task': 'Guess the drawing', 'emoji': ':artist_palette:'},
-    '3': {'task': 'Guess the animal sound', 'emoji': ':paw_prints:'},
-    '4': {'task': 'Spot a smile in a photo', 'emoji': ':smiling_face:'},
-    '5': {'task': 'Pictures of faces', 'emoji': ':smiling_face:'},
-    '6': {'task': 'Pick a bedtime story', 'emoji': ':books:'},
-    '7': {'task': 'Identify a song', 'emoji': ':musical_note:'},
-    '8': {'task': 'Detect objects in a picture', 'emoji': ':camera:'},
-    '9': {'task': 'Translate a phrase', 'emoji': ':speech_balloon:'},
-    '10': {'task': 'Guess the emoji', 'emoji': ':grinning_face:'},
-    '11': {'task': 'Recognize a flower type', 'emoji': ':flower_playing_cards:'},
-    '12': {'task': 'Identify a car model', 'emoji': ':car:'},
-    '13': {'task': 'Answer a math question', 'emoji': ':abacus:'},
-    '14': {'task': 'Spot a landmark', 'emoji': ':world_map:'},
-    '15': {'task': 'Describe a weather scene', 'emoji': ':cloud:'}
+    '1': {'task': 'Autocorrect spelling', 'emoji': 'emojis/Writing_Hand_3D_default.png'},
+    '2': {'task': 'Guess the drawing', 'emoji': 'emojis/Artist_Palette_3D.png'},
+    '3': {'task': 'Guess the animal sound', 'emoji': 'emojis/Paw_Prints_3D.png'},
+    '4': {'task': 'Spot a smile in a photo', 'emoji': 'emojis/Grinning_Face_With_Smiling_Eyes_3D.png'},
+    '5': {'task': 'Pictures of faces', 'emoji': 'emojis/Boy_3D_Default.png'},
+    '6': {'task': 'Pick a bedtime story', 'emoji': 'emojis/Books_3D.png'},
+    '7': {'task': 'Identify a song', 'emoji': 'emojis/Musical_Notes_3D.png'},
+    '8': {'task': 'Detect objects in a picture', 'emoji': 'emojis/Framed_Picture_3D.png'},
+    '9': {'task': 'Translate a phrase', 'emoji': 'emojis/Speech_Balloon_3D.png'},
+    '10': {'task': 'Guess the emoji', 'emoji': 'emojis/Zany_Face_3D.png'},
+    '11': {'task': 'Recognize a flower type', 'emoji': 'emojis/Tulip_3D.png'},
+    '12': {'task': 'Identify a car model', 'emoji': 'emojis/Automobile_3D.png'},
+    '13': {'task': 'Answer a math question', 'emoji': 'emojis/Abacus_3D.png'},
+    '14': {'task': 'Spot a landmark', 'emoji': 'emojis/World_Map_3D.png'},
+    '15': {'task': 'Describe a weather scene', 'emoji': 'emojis/Cloud_With_Lightning_And_Rain_3D.png'}
 }
 
-# Function to convert non-BMP emojis to surrogate pairs for Tkinter
-_nonbmp = re.compile(r'[\U00010000-\U0010FFFF]')
-def with_surrogates(text):
-    def _surrogatepair(match):
-        char = match.group()
-        assert ord(char) > 0xffff
-        encoded = char.encode('utf-16-le')
-        return (
-            chr(int.from_bytes(encoded[:2], 'little')) +
-            chr(int.from_bytes(encoded[2:], 'little'))
-        )
-    return _nonbmp.sub(_surrogatepair, text)
+# Cache for emoji images to avoid reloading
+emoji_cache = {}
+
+# Function to load and resize emoji image as CTkImage
+def load_emoji_image(path, size=(32, 32)):
+    if path not in emoji_cache:
+        img = Image.open(path).resize(size, Image.LANCZOS)
+        emoji_cache[path] = CTkImage(light_image=img, dark_image=img, size=size)
+    return emoji_cache[path]
 
 # Create main frame for start page
 main_frame = CTkFrame(root, fg_color="transparent")
@@ -206,8 +201,11 @@ left_frame.grid_rowconfigure(1, weight=1)
 
 drawn_label = CTkLabel(left_frame, text="Drawn Numbers", font=("Arial", 28), text_color="#FCDDA4")
 drawn_label.grid(row=0, column=0, pady=(5, 5), sticky='n')
-drawn_text = CTkTextbox(left_frame, font=("Arial", 28), text_color="#AEAEAE", state='disabled')
-drawn_text.grid(row=1, column=0, padx=5, pady=5, sticky='nsew')
+
+# Frame to hold dynamic task labels
+drawn_content_frame = CTkFrame(left_frame, fg_color="#2B2B2B")
+drawn_content_frame.grid(row=1, column=0, padx=5, pady=5, sticky='nsew')
+drawn_content_frame.grid_columnconfigure(0, weight=1)
 
 # Right side: Number pile (5x3 grid for 15 numbers)
 right_frame = CTkFrame(bingo_frame, fg_color="#2B2B2B")
@@ -243,15 +241,29 @@ def draw_number(number):
 
 # Function to update bingo page
 def update_bingo_page():
-    # Update drawn numbers text
-    drawn_text.configure(state='normal')
-    drawn_text.delete("1.0", "end")
-    for num in drawn_numbers:
+    # Clear existing labels in drawn_content_frame
+    for widget in drawn_content_frame.winfo_children():
+        widget.destroy()
+    
+    # Add new labels for each drawn number
+    for i, num in enumerate(drawn_numbers):
         task = tasks.get(num, {'task': 'Unknown task', 'emoji': ''})
-        emoji_text = emoji.emojize(task['emoji'])
-        emoji_text = with_surrogates(emoji_text)
-        drawn_text.insert("end", f"Number {num}: {task['task']} {emoji_text}\n")
-    drawn_text.configure(state='disabled')
+        # Create frame for each task row
+        task_frame = CTkFrame(drawn_content_frame, fg_color="#2B2B2B")
+        task_frame.grid(row=i, column=0, sticky='w', pady=2)
+        task_frame.grid_columnconfigure(0, weight=0)
+        task_frame.grid_columnconfigure(1, weight=0)
+        
+        # Add text label
+        text_label = CTkLabel(task_frame, text=f"Number {num}: {task['task']}", font=("Arial", 28), text_color="#AEAEAE")
+        text_label.grid(row=0, column=0, sticky='w')
+        
+        # Add emoji image if available
+        if task['emoji']:
+            emoji_img = load_emoji_image(task['emoji'])
+            emoji_label = CTkLabel(task_frame, image=emoji_img, text="")
+            emoji_label.grid(row=0, column=1, padx=(5, 0), sticky='w')
+    
     # Update number buttons
     for num, btn in number_buttons.items():
         if num in drawn_numbers:
