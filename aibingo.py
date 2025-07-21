@@ -23,6 +23,7 @@ rules_icon_image = icon_to_image("book", fill="#EA6E08", scale_to_width=24)
 back_icon_image = icon_to_image("arrow-left", fill="#EA6E08", scale_to_width=24)
 reset_icon_image = icon_to_image("rotate-right", fill="#EA6E08", scale_to_width=24)
 dice_icon_image = icon_to_image("dice", fill="#EA6E08", scale_to_width=24)
+undo_icon_image = icon_to_image("undo", fill="#EA6E08", scale_to_width=24)
 
 # Track drawn numbers
 drawn_numbers = []
@@ -33,7 +34,7 @@ tasks = {
     '2': {'task': 'Identify a type of flower ', 'emoji': 'emojis/Tulip_3D.png'},
     '3': {'task': 'Use a map app to find the fastest route ', 'emoji': 'emojis/World_Map_3D.png'},
     '4': {'task': 'Predict if the weather will be snow ', 'emoji': 'emojis/cloud_with_snow_3d.png'},
-    '5': {'task': 'Google autocomplete your search ', 'emoji': 'emojis/Magnifying_Glass_Tilted_Left_3D.png'},
+    '5': {'task': 'Use autocomplete in your Google search ', 'emoji': 'emojis/Magnifying_Glass_Tilted_Left_3D.png'},
     '6': {'task': 'Writing assignment graded by a computer ', 'emoji': 'emojis/Memo_3D.png'},
     '7': {'task': 'Send a voice-to-text message ', 'emoji': 'emojis/Microphone_3D.png'},
     '8': {'task': 'Recommend a product on Amazons shopping website ', 'emoji': 'emojis/Shopping_Cart_3D.png'},
@@ -43,7 +44,7 @@ tasks = {
     '12': {'task': 'Suggest a new game to play on Roblox ', 'emoji': 'emojis/Video_Game_3D.png'},
     '13': {'task': 'Identify any type of drawings ', 'emoji': 'emojis/Artist_Palette_3D.png'},
     '14': {'task': 'Play a motion-sensitive video game ', 'emoji': 'emojis/man_dancing_3d_default.png'},
-    '15': {'task': 'Predict the type of bird species ', 'emoji': 'emojis/parrot_3D.png'},
+    '15': {'task': 'Identify a type of bird species ', 'emoji': 'emojis/parrot_3D.png'},
     '16': {'task': 'Have your words autocorrected in a text ', 'emoji': 'emojis/Keyboard_3D.png'},
     '17': {'task': 'Get a YouTube video recommendation ', 'emoji': 'emojis/Video_Camera_3D.png'},
     '18': {'task': 'Write an AI version of a Harry Potter story ', 'emoji': 'emojis/Books_3D.png'},
@@ -73,6 +74,12 @@ def roll_number():
         number = random.choice(available_numbers)
         draw_number(number)
 
+# Function to undo the last drawn number
+def undo_action():
+    if drawn_numbers:
+        drawn_numbers.pop()
+        update_bingo_page()
+
 # Create main frame for start page
 main_frame = CTkFrame(root, fg_color="transparent")
 main_frame.grid(row=0, column=0, columnspan=2, sticky='nsew')
@@ -86,7 +93,7 @@ main_frame.grid_columnconfigure(2, weight=1)
 
 # Main frame widgets
 lbl1 = CTkLabel(main_frame, text='Welcome to the STEAM Day Digital Booth!', font=("Broadway", 24), text_color="#FCDDA4")
-lbl2 = CTkLabel(main_frame, text='Created by Nick Pucci and Jake Lee', font=("Gill Sans MT", 18), text_color="#FCDDA4")
+lbl2 = CTkLabel(main_frame, text='Created by Nick Pucci and Jake Lee', font=("Broadway", 18), text_color="#FCDDA4")
 lbl3 = CTkLabel(main_frame, text='AI Bingo', font=("Britannic Bold", 48), text_color="#FFB01E")
 lbl1.grid(row=0, column=0, columnspan=3, pady=(20, 10), sticky='n')
 lbl2.grid(row=0, column=0, columnspan=3, pady=(50, 30), sticky='n')
@@ -106,7 +113,7 @@ rules_btn = CTkButton(master=main_frame,
                       border_width=2,
                       width=150,
                       height=50,
-                      font=("Arial", 18))
+                      font=("Britannic Bold", 18))
 rules_btn.grid(row=1, column=0, padx=10, pady=10, sticky='e')
 
 # Play button
@@ -120,7 +127,7 @@ btn = CTkButton(master=main_frame,
                 border_width=2,
                 width=150,
                 height=50,
-                font=("Arial", 18))
+                font=("Britannic Bold", 18))
 btn.grid(row=1, column=1, padx=10, pady=10)
 
 # Quit button
@@ -134,7 +141,7 @@ quit_btn = CTkButton(master=main_frame,
                      border_width=2,
                      width=150,
                      height=50,
-                     font=("Arial", 18))
+                     font=("Britannic Bold", 18))
 quit_btn.grid(row=1, column=2, padx=10, pady=10, sticky='w')
 
 # Create rules frame
@@ -147,7 +154,7 @@ rules_frame.grid_columnconfigure(0, weight=1)
 
 # Rules frame widgets
 rules_label = CTkLabel(rules_frame, text="AI Bingo Rules\n\n1. Click 'Play' to go to the bingo page.\n2. Select a number from 1 to 25 on the right side or click 'Roll' to draw a random number.\n3. View drawn numbers and tasks with emojis in the center.\n4. Numbers in the pile on the right are shaded when drawn.\n5. Match tasks to your bingo card!\n6. Have fun and explore AI challenges!",
-                       font=("Gill Sans MT", 16), text_color="#FCDDA4", justify="center")
+                       font=("Tw Cen MT", 16), text_color="#FCDDA4", justify="center")
 rules_label.grid(row=0, column=0, padx=20, pady=(20, 10))
 
 back_btn = CTkButton(rules_frame,
@@ -167,8 +174,8 @@ bingo_frame.grid(row=0, column=0, columnspan=2, sticky='nsew')
 # Configure grid for bingo frame
 bingo_frame.grid_rowconfigure(0, weight=0)  # Header
 bingo_frame.grid_rowconfigure(1, weight=1)  # Content
-bingo_frame.grid_columnconfigure(0, weight=2)  # Drawn numbers section
-bingo_frame.grid_columnconfigure(1, weight=2)  # Number pile section
+bingo_frame.grid_columnconfigure(0, weight=3)  # Drawn numbers section
+bingo_frame.grid_columnconfigure(1, weight=0)  # Number pile section
 
 # Bingo frame header (Back, Rules, Reset, Roll buttons)
 header_frame = CTkFrame(bingo_frame, fg_color="transparent")
@@ -188,8 +195,8 @@ back_bingo_btn = CTkButton(header_frame,
                            border_width=2,
                            width=150,
                            height=50,
-                           font=("Arial", 20))
-back_bingo_btn.grid(row=0, column=0, padx=5, pady=5, sticky='w')
+                           font=("Britannic Bold", 20))
+back_bingo_btn.grid(row=0, column=0, padx=5, pady=5)
 
 rules_bingo_btn = CTkButton(header_frame,
                             text='Rules',
@@ -201,7 +208,7 @@ rules_bingo_btn = CTkButton(header_frame,
                             border_width=2,
                             width=150,
                             height=50,
-                            font=("Arial", 20))
+                            font=("Britannic Bold", 20))
 rules_bingo_btn.grid(row=0, column=1, padx=5, pady=5)
 
 reset_btn = CTkButton(header_frame,
@@ -214,8 +221,21 @@ reset_btn = CTkButton(header_frame,
                       border_width=2,
                       width=150,
                       height=50,
-                      font=("Arial", 20))
+                      font=("Britannic Bold", 20))
 reset_btn.grid(row=0, column=2, padx=5, pady=5)
+
+undo_btn = CTkButton(header_frame,
+                     text='Undo',
+                     image=undo_icon_image,
+                     command=undo_action,
+                     fg_color='orange',
+                     hover_color="#EAAC79",
+                     border_color='white',
+                     border_width=2,
+                     width=150,
+                     height=50,
+                     font=("Britannic Bold", 20))
+undo_btn.grid(row=0, column=3, padx=5, pady=5)
 
 roll_btn = CTkButton(header_frame,
                      text='Roll',
@@ -227,8 +247,8 @@ roll_btn = CTkButton(header_frame,
                      border_width=2,
                      width=150,
                      height=50,
-                     font=("Arial", 20))
-roll_btn.grid(row=0, column=3, padx=5, pady=5, sticky='e')
+                     font=("Britannic Bold", 20))
+roll_btn.grid(row=0, column=4, padx=5, pady=5)
 
 # Drawn numbers section
 left_frame = CTkFrame(bingo_frame, fg_color="#FCAC2A", border_color='white')
@@ -239,13 +259,13 @@ left_frame.grid_rowconfigure(1, weight=1)
 drawn_label = CTkLabel(left_frame, text="Drawn Numbers", font=("Britannic Bold", 28), text_color="#FFFFFF")
 drawn_label.grid(row=0, column=0, pady=(5, 5), sticky='n')
 
-drawn_content_frame = CTkFrame(left_frame, fg_color="#F7F7F7")
+drawn_content_frame = CTkScrollableFrame(left_frame, fg_color="#FDE9D1")
 drawn_content_frame.grid(row=1, column=0, padx=5, pady=5, sticky='nsew')
 drawn_content_frame.grid_columnconfigure(0, weight=1)
 
 # Right side: Number pile (5x5 grid for 25 numbers)
-right_frame = CTkFrame(bingo_frame, fg_color="#2B2B2B")
-right_frame.grid(row=1, column=1, padx=5, pady=5, sticky='nsew')
+right_frame = CTkFrame(bingo_frame, fg_color="#2B2B2B", width=480)
+right_frame.grid(row=1, column=1, padx=5, pady=5, sticky='nse')
 for i in range(5):
     right_frame.grid_columnconfigure(i, weight=1)
 for i in range(5):
@@ -287,10 +307,10 @@ def update_bingo_page():
         text = f" {num}: {task['task']}"
         if task['emoji']:
             emoji_img = load_emoji_image(task['emoji'], size=(28, 28))
-            label = CTkLabel(drawn_content_frame, text=text, image=emoji_img, compound="right", font=("Britannic Bold", 28), text_color="#333333", anchor="w")
+            label = CTkLabel(drawn_content_frame, text=text, image=emoji_img, compound="right", font=("Tw Cen MT", 28), text_color="#333333", anchor="w")
         else:
-            label = CTkLabel(drawn_content_frame, text=text, font=("Britannic Bold", 28), text_color="#333333", anchor="w")
-        label.grid(row=i, column=0, pady=2, sticky='w')
+            label = CTkLabel(drawn_content_frame, text=text, font=("Tw Cen MT", 28), text_color="#333333", anchor="w")
+        label.grid(row=i, column=0, pady=0, sticky='w')
     
     # Update number buttons
     for num, btn in number_buttons.items():
